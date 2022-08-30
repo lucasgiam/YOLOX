@@ -26,6 +26,7 @@ def get_yolox_datadir():
 
         yolox_path = os.path.dirname(os.path.dirname(yolox.__file__))
         yolox_datadir = os.path.join(yolox_path, "datasets")
+        print(f"YOLOX_DATADIR is not set, use default path: {yolox_datadir}")
     return yolox_datadir
 
 
@@ -69,10 +70,14 @@ class DataLoader(torchDataLoader):
         if batch_sampler is None:
             if sampler is None:
                 if shuffle:
-                    sampler = torch.utils.data.sampler.RandomSampler(self.dataset)
+                    sampler = torch.utils.data.sampler.RandomSampler(
+                        self.dataset
+                    )
                     # sampler = torch.utils.data.DistributedSampler(self.dataset)
                 else:
-                    sampler = torch.utils.data.sampler.SequentialSampler(self.dataset)
+                    sampler = torch.utils.data.sampler.SequentialSampler(
+                        self.dataset
+                    )
             batch_sampler = YoloBatchSampler(
                 sampler,
                 self.batch_size,
