@@ -26,4 +26,11 @@
 #     "tvmonitor",
 # )
 
-VOC_CLASSES = ("person",)
+# VOC_CLASSES = ("person",)
+
+VOC_CLASSES = (
+    "no_ppe",
+    "helmet",
+    "mask",
+    "vest",
+)

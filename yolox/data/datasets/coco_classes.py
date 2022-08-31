@@ -85,4 +85,10 @@
 #     "toothbrush",
 # )
 
-COCO_CLASSES = ("person",)
+# COCO_CLASSES = ("person",)
+COCO_CLASSES = (
+    "no_ppe",
+    "helmet",
+    "mask",
+    "vest",
+)

@@ -17,14 +17,14 @@ from yolox.exp import Exp as MyExp
 # For debugging
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
-CUSTOM_DATA_FOLDER_NAME = "sp_ppe_voc_human_only"
-NUM_CLASSES = 1
+CUSTOM_DATA_FOLDER_NAME = "sp_ppe_voc_helmet_mask_vest"
+NUM_CLASSES = 4
 
 
 class Exp(MyExp):
     def __init__(self):
         super(Exp, self).__init__()
-        self.num_classes = NUM_CLASSES = 4  # 20
+        self.num_classes = NUM_CLASSES  # 20
         print("num_classes", self.num_classes)
 
         self.depth = 0.33
@@ -36,6 +36,13 @@ class Exp(MyExp):
         self.mixup_prob = 1.0
         self.hsv_prob = 1.0
         self.flip_prob = 0.5
+        self.degrees = 10.0
+        self.translate = 0.1
+        self.scale = (0.1, 2)
+        self.mosaic_scale = (0.8, 1.6)
+        self.shear = 2.0
+        self.perspective = 0.0
+        self.enable_mixup = True
 
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(
             "."
@@ -45,7 +52,7 @@ class Exp(MyExp):
         self.seed = 1992
 
         self.input_size = (640, 640)  # (height, width)
-        self.max_epoch = 1
+        self.max_epoch = 20
         self.test_size = (640, 640)
         # log period in iter, for example,
         # if set to 1, user could see log every iteration.
@@ -154,7 +161,7 @@ class Exp(MyExp):
 
         valdataset = VOCDetection(
             root=os.path.join(get_yolox_datadir(), "VOCdevkit"),
-            image_sets=[("2012", "val")],
+            image_sets=[("2012", "train")],  # image_sets=[("2012", "val")],
             img_size=self.test_size,
             preproc=ValTransform(legacy=legacy),
             custom_data_folder_name=CUSTOM_DATA_FOLDER_NAME,
