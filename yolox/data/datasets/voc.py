@@ -118,6 +118,8 @@ class VOCDetection(Dataset):
         self.img_size = img_size
         self.preproc = preproc
         self.target_transform = target_transform
+
+        # rename self.name since we have name below in image_sets, change either one
         self.name = dataset_name
         self._annopath = os.path.join("%s", "Annotations", "%s.xml")
         self._imgpath = os.path.join("%s", "JPEGImages", "%s.jpg")

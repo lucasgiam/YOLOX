@@ -208,10 +208,14 @@ class WandbLogger(object):
         self.run.define_metric("train/step")
         self.run.define_metric("train/*", step_metric="train/step")
 
-        if val_dataset and self.num_log_images != 0:
-            self.cats = val_dataset.cats
-            self.id_to_class = {cls["id"]: cls["name"] for cls in self.cats}
-            self._log_validation_set(val_dataset)
+        # FIXME: why this throw error?
+        # MY HUNCH IS THIS CODE TESTED ON COCO DATASET AND NOT VOC?!
+        # if val_dataset and self.num_log_images != 0:
+        #     print(val_dataset)
+        #     print(val_dataset.cats)
+        #     self.cats = val_dataset.cats
+        #     self.id_to_class = {cls["id"]: cls["name"] for cls in self.cats}
+        #     self._log_validation_set(val_dataset)
 
     @property
     def run(self):

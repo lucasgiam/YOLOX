@@ -2,6 +2,9 @@
 *~
 
 venv_*/
+tmp.py
+wandb
+weights
 
 # user experiments directory
 YOLOX_outputs/
