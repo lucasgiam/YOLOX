@@ -92,3 +92,15 @@ COCO_CLASSES = (
     "mask",
     "vest",
 )
+
+# i believe voc classes is in string in xml so sequence dont matter here?
+COCO_CLASSES = (
+    "no_ppe",
+    "all_ppe",
+    "helmet",
+    "mask",
+    "vest",
+    "mask-vest",
+    "helmet-mask",
+    "helmet-vest",
+)
