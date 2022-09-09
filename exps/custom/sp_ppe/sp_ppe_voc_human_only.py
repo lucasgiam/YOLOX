@@ -24,7 +24,7 @@ NUM_CLASSES = 1
 class Exp(MyExp):
     def __init__(self):
         super(Exp, self).__init__()
-        self.num_classes = NUM_CLASSES = 4  # 20
+        self.num_classes = NUM_CLASSES # 20
         print("num_classes", self.num_classes)
 
         self.depth = 0.33
