@@ -1,0 +1,7 @@
+nodes:
+- input.visual:
+    source: 1
+- custom_nodes.model.ppe_detection
+- draw.bbox:
+    show_labels: True
+- output.screen

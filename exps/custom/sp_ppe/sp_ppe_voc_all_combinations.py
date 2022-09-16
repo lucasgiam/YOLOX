@@ -17,9 +17,8 @@ from yolox.exp import Exp as MyExp
 # For debugging
 os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
 
-CUSTOM_DATA_FOLDER_NAME = "sp_ppe_voc_all_combinations"
+CUSTOM_DATA_FOLDER_NAME = ""
 NUM_CLASSES = 8
-
 
 class Exp(MyExp):
     def __init__(self):
@@ -48,7 +47,7 @@ class Exp(MyExp):
             "."
         )[0]
 
-        self.data_num_workers = 0
+        self.data_num_workers = 8
         self.seed = 1992
 
         self.input_size = (640, 640)  # (height, width)

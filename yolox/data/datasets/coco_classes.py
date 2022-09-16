@@ -85,13 +85,6 @@
 #     "toothbrush",
 # )
 
-# COCO_CLASSES = ("person",)
-COCO_CLASSES = (
-    "no_ppe",
-    "helmet",
-    "mask",
-    "vest",
-)
 
 # i believe voc classes is in string in xml so sequence dont matter here?
 COCO_CLASSES = (

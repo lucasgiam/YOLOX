@@ -293,6 +293,7 @@ def main(exp, args):
         exp.test_size = (args.tsize, args.tsize)
 
     model = exp.get_model()
+    print("model", model)
     logger.info(
         "Model Summary: {}".format(get_model_info(model, exp.test_size))
     )

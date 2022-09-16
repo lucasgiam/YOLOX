@@ -2,38 +2,58 @@ import os
 import random
 import sys
 from pathlib import Path
+from shutil import copyfile
 
-if len(sys.argv) < 2:
-    print("no directory specified, please input target directory")
-    exit()
+import numpy as np
 
-root_path = sys.argv[1]
-print("root_path:", root_path)
+root_path = "./datasets/VOCdevkit/"
+if not os.path.exists(root_path):
+    os.makedirs(root_path)
 
 xmlfilepath = root_path + "VOC2012/Annotations/"
-os.mkdir(xmlfilepath)
+if not os.path.exists(xmlfilepath):
+    os.makedirs(xmlfilepath)
 imagefilepath = root_path + "VOC2012/JPEGImages/"
-os.mkdir(imagefilepath)
+
+if not os.path.exists(imagefilepath):
+    os.makedirs(imagefilepath)
+
+original_annot_path = r"C:\Users\Lucas_Giam\PKD_PPE\YOLOX\datasets\pascal_voc\annotations"
+original_image_path = r"C:\Users\Lucas_Giam\PKD_PPE\YOLOX\datasets\pascal_voc\images"
 
 # Move annotations to annotations folder
-for filename in os.listdir(root_path):
+for filename in os.listdir(original_annot_path):
+    print(filename)
     if filename.endswith(".xml"):
-        with open(os.path.join(root_path, filename)) as f:
-            Path(root_path + filename).rename(xmlfilepath + filename)
 
+        copyfile(
+            f"{original_annot_path}/{filename}",
+            f"{xmlfilepath}/{filename}",
+        )
+
+for filename in os.listdir(original_image_path):
     if filename.endswith(".jpg"):
-        with open(os.path.join(root_path, filename)) as f:
-            Path(root_path + filename).rename(imagefilepath + filename)
+        copyfile(
+            f"{original_image_path}/{filename}",
+            f"{imagefilepath}/{filename}",
+        )
 
 
 txtsavepath = root_path + "/VOC2012/ImageSets/Main"
 
-if not os.path.exists(root_path):
-    print("cannot find such directory: " + root_path)
-    exit()
+# if not os.path.exists(root_path):
+#    print("cannot find such directory: " + root_path)
+#    exit()
 
 if not os.path.exists(txtsavepath):
+
     os.makedirs(txtsavepath)
+
+
+seed = 1992
+print("seed: ", seed)
+random.seed(seed)
+np.random.seed(seed)
 
 trainval_percent = 0.9
 train_percent = 0.8
