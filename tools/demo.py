@@ -197,6 +197,7 @@ class Predictor(object):
 
         cls = output[:, 6]
         scores = output[:, 4] * output[:, 5]
+        print(bboxes, cls, scores)
 
         vis_res = vis(img, bboxes, scores, cls, cls_conf, self.cls_names)
         return vis_res

@@ -1,84 +1,144 @@
-"""YOLOX models with model types: yolox-tiny, yolox-s, yolox-m, and yolox-l."""
+from typing import Any, Dict
 
-import logging
-from typing import Any, Dict, List, Tuple
-
+import cv2
 import numpy as np
+import tensorflow as tf
 
-from peekingduck.pipeline.nodes.base import (
-    ThresholdCheckerMixin,
-    WeightsDownloaderMixin,
-)
-from peekingduck.pipeline.nodes.model.yoloxv1.yolox_files.detector import Detector
+from peekingduck.pipeline.nodes.node import AbstractNode
+
+import torch
+from torch import nn
+from torch.hub import load_state_dict_from_url
+import argparse
+import os
+import time
+from loguru import logger
+
+from yolox.data.data_augment import ValTransform
+from yolox.data.datasets import COCO_CLASSES
+from yolox.exp import get_exp, Exp
+from yolox.utils import fuse_model, get_model_info, postprocess, vis
+
+EXP_PATH = "./exps/custom/sp_ppe/sp_ppe_voc_all_combinations.py"
+CKPT_FILE = "./YOLOX_outputs/sp_ppe_voc_all_combinations/best_ckpt.pth"
+
+VOC_CLASSES = {
+    0: "no_ppe",
+    1: "all_ppe",
+    2: "helmet",
+    3: "mask",
+    4: "vest",
+    5: "mask-vest",
+    6: "helmet-mask",
+    7: "helmet-vest",
+}
 
 
-class YOLOXModel(ThresholdCheckerMixin, WeightsDownloaderMixin):
-    """Validates configuration, loads YOLOX model, and performs inference.
-    Configuration options are validated to ensure they have valid types and
-    values. Model weights files are downloaded if not found in the location
-    indicated by the `weights_dir` configuration option.
-    Attributes:
-        class_names (List[str]): Human-friendly class names of the object
-            categories.
-        detect_ids (List[int]): List of selected object category IDs. IDs not
-            found in this list will be filtered away from the results. An empty
-            list indicates that all object categories should be detected.
-        detector (Detector): YOLOX detector object to infer bboxes from a
-            provided image frame.
+class Node(AbstractNode):
+
+    """Initializes and uses a CNN to predict if an image frame shows a normal
+    or defective casting.
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        self.config = config
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, config: Dict[str, Any] = None, **kwargs: Any) -> None:
+        super().__init__(config, node_path=__name__, **kwargs)
+        self.exp = get_exp(EXP_PATH)
+        self.test_size = self.exp.test_size
+        self.device = "gpu"
+        self.fp16 = False
+        self.num_classes = self.exp.num_classes
+        self.confthre = 0.5   # default 0.25   # self.exp.test_conf
+        self.nmsthre = 0.45   # self.exp.nmsthre
+        self.model = self.load_model()
 
-        self.check_bounds(["iou_threshold", "score_threshold"], "[0, 1]")
+    def load_model(self):
+        model = self.exp.get_model()
+        ckpt = torch.load(CKPT_FILE, map_location="cpu")
+        model.load_state_dict(ckpt["model"])
+        if self.device == "gpu":
+            model.cuda()
+        model.eval()
+        return model
 
-        model_dir = self.download_weights()
-        with open(model_dir / self.weights["classes_file"]) as infile:
-            class_names = [line.strip() for line in infile.readlines()]
+    def preprocess(self, img):
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_info = {"id": 0}
+        img_info["file_name"] = None
+        height, width = img.shape[:2]
+        img_info["height"] = height
+        img_info["width"] = width
+        img_info["raw_img"] = img
 
-        self.detect_ids = self.config["detect"]  # change "detect_ids" to "detect"
-        self.detector = Detector(
-            model_dir,
-            class_names,
-            self.detect_ids,
-            self.config["model_format"],
-            self.config["model_type"],
-            self.config["num_classes"],
-            self.config["model_size"],
-            self.weights["model_file"],
-            self.config["agnostic_nms"],
-            self.config["fuse"],
-            self.config["half"],
-            self.config["input_size"],
-            self.config["iou_threshold"],
-            self.config["score_threshold"],
+        ratio = min(
+            self.test_size[0] / img.shape[0], self.test_size[1] / img.shape[1]
         )
+        img_info["ratio"] = ratio
 
-    @property
-    def detect_ids(self) -> List[int]:
-        """The list of selected object category IDs."""
-        return self._detect_ids
+        img, _ = ValTransform(legacy=False)(img, None, self.test_size)
+        img = torch.from_numpy(img).unsqueeze(0)
+        img = img.float()
+        if self.device == "gpu":
+            img = img.cuda()
+            if self.fp16:
+                img = img.half()  # to FP16
+        return img, img_info
 
-    @detect_ids.setter
-    def detect_ids(self, ids: List[int]) -> None:
-        if not isinstance(ids, list):
-            raise TypeError("detect_ids has to be a list")
-        self._detect_ids = ids
+    def postprocess(self, predictions, img_info):
+        predictions = postprocess(
+            predictions,
+            self.num_classes,
+            self.confthre,
+            self.nmsthre,
+            class_agnostic=True,
+        )
+        ratio = img_info["ratio"]
+        img = img_info["raw_img"]
 
-    def predict(self, image: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Predicts bboxes from image.
+        predictions = predictions[0]   # Removed outer list
+
+        if predictions is None:
+            return np.empty((0, 4)), np.empty(0), np.empty(0)
+        bboxes = predictions[:, 0:4]
+
+        # preprocessing: resize
+        bboxes /= ratio
+        # print(predictions)
+        class_id = predictions[:, 6]
+        scores = predictions[:, 4] * predictions[:, 5]
+
+        bboxes = bboxes.cpu().detach().numpy()
+        class_id = class_id.cpu().detach().numpy()
+        scores = scores.cpu().detach().numpy()
+
+        # print("unnormalised bboxes", bboxes)
+
+        bboxes[..., [0, 2]] = bboxes[..., [0, 2]] / img_info["width"]
+        bboxes[..., [1, 3]] = bboxes[..., [1, 3]] / img_info["height"]
+
+        return bboxes, class_id, scores
+
+    def run(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Reads the image input and returns the predicted class label and
+        confidence score.
+
         Args:
-            image (np.ndarray): Input image frame.
+              inputs (dict): Dictionary with key "img".
+
         Returns:
-            (Tuple[np.ndarray, np.ndarray, np.ndarray]): Returned tuple
-            contains:
-            - An array of detection bboxes
-            - An array of human-friendly detection class names
-            - An array of detection scores
-        Raises:
-            TypeError: The provided `image` is not a numpy array.
+              outputs (dict): Dictionary with keys "pred_label" and "pred_score".
         """
-        if not isinstance(image, np.ndarray):
-            raise TypeError("image must be a np.ndarray")
-        return self.detector.predict_object_bbox_from_image(image)
+        img = inputs["img"]
+        # print(img.shape)
+        # print(self.confthre)
+        # print(self.nmsthre)
+        img, img_info = self.preprocess(img)
+        # img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
+        # img = np.expand_dims(img, axis=0)
+        # predictions = self.model.predict(img)
+        with torch.no_grad():
+            predictions = self.model(img)
+            bboxes, class_ids, scores = self.postprocess(predictions, img_info)
+            class_labels = [VOC_CLASSES[class_id] for class_id in class_ids]
+            # print(bboxes, class_labels, scores)
+        outputs = {"bboxes": bboxes, "bbox_labels": class_labels, "bbox_scores": scores}
+        return outputs

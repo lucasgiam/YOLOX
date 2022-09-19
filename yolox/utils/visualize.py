@@ -9,7 +9,7 @@ __all__ = ["vis"]
 
 
 def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
-
+    print(img.shape)
     for i in range(len(boxes)):
         box = boxes[i]
         cls_id = int(cls_ids[i])
@@ -22,6 +22,8 @@ def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
         y1 = int(box[3])
 
         color = (_COLORS[cls_id] * 255).astype(np.uint8).tolist()
+        print(class_names)
+        print(cls_id)
         text = "{}:{:.1f}%".format(class_names[cls_id], score * 100)
         txt_color = (
             (0, 0, 0) if np.mean(_COLORS[cls_id]) > 0.5 else (255, 255, 255)
