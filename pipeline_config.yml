@@ -3,7 +3,14 @@ nodes:
     source: 1
     # source: ./datasets/pascal_voc/images/all_ppe--1-_jpg.rf.90bf10c92a532b472017aae1ff221085.jpg
 - custom_nodes.model.ppe_detection
-- draw.bbox:
-    show_labels: true
+- custom_nodes.draw.bbox
+# - draw.bbox:
+    # show_labels: true
+- custom_nodes.draw.score
 - output.screen
-- output.media_writer
+- output.csv_writer:
+    stats_to_track: ["filename", "bboxes", "bbox_labels"]
+    file_path: ./YOLOX_outputs/pkd/all_annotations.csv
+    logging_interval: 0
+- output.media_writer:
+    output_dir: ./YOLOX_outputs/pkd

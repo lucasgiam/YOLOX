@@ -19,41 +19,23 @@ from yolox.data.datasets import COCO_CLASSES
 from yolox.exp import get_exp, Exp
 from yolox.utils import fuse_model, get_model_info, postprocess, vis
 
-EXP_PATH = "./exps/custom/sp_ppe/sp_ppe_voc_all_combinations.py"
-CKPT_FILE = "./YOLOX_outputs/sp_ppe_voc_all_combinations/best_ckpt.pth"
-
-VOC_CLASSES = {
-    0: "no_ppe",
-    1: "all_ppe",
-    2: "helmet",
-    3: "mask",
-    4: "vest",
-    5: "mask-vest",
-    6: "helmet-mask",
-    7: "helmet-vest",
-}
-
 
 class Node(AbstractNode):
 
-    """Initializes and uses a CNN to predict if an image frame shows a normal
-    or defective casting.
-    """
-
     def __init__(self, config: Dict[str, Any] = None, **kwargs: Any) -> None:
         super().__init__(config, node_path=__name__, **kwargs)
-        self.exp = get_exp(EXP_PATH)
+        self.exp = get_exp(self.exp_path)
         self.test_size = self.exp.test_size
-        self.device = "gpu"
-        self.fp16 = False
+        self.device: str
+        self.fp16: bool
         self.num_classes = self.exp.num_classes
-        self.confthre = 0.5   # default 0.25   # self.exp.test_conf
-        self.nmsthre = 0.45   # self.exp.nmsthre
+        self.confthre: float
+        self.nmsthre: float
         self.model = self.load_model()
 
     def load_model(self):
         model = self.exp.get_model()
-        ckpt = torch.load(CKPT_FILE, map_location="cpu")
+        ckpt = torch.load(self.ckpt_file, map_location="cpu")
         model.load_state_dict(ckpt["model"])
         if self.device == "gpu":
             model.cuda()
@@ -61,7 +43,6 @@ class Node(AbstractNode):
         return model
 
     def preprocess(self, img):
-        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_info = {"id": 0}
         img_info["file_name"] = None
         height, width = img.shape[:2]
@@ -128,17 +109,10 @@ class Node(AbstractNode):
               outputs (dict): Dictionary with keys "pred_label" and "pred_score".
         """
         img = inputs["img"]
-        # print(img.shape)
-        # print(self.confthre)
-        # print(self.nmsthre)
         img, img_info = self.preprocess(img)
-        # img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
-        # img = np.expand_dims(img, axis=0)
-        # predictions = self.model.predict(img)
         with torch.no_grad():
             predictions = self.model(img)
             bboxes, class_ids, scores = self.postprocess(predictions, img_info)
-            class_labels = [VOC_CLASSES[class_id] for class_id in class_ids]
-            # print(bboxes, class_labels, scores)
+            class_labels = [self.voc_classes[class_id] for class_id in class_ids]
         outputs = {"bboxes": bboxes, "bbox_labels": class_labels, "bbox_scores": scores}
         return outputs
