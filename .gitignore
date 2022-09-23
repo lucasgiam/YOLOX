@@ -9,7 +9,6 @@ weights
 # user experiments directory
 YOLOX_outputs/
 datasets/
-PeekingDuck/data/output/
 # do not ignore datasets under yolox/data
 !*yolox/data/datasets/
 

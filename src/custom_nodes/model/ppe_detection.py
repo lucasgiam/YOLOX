@@ -1,23 +1,13 @@
 from typing import Any, Dict
 
-import cv2
 import numpy as np
-import tensorflow as tf
+import torch
 
 from peekingduck.pipeline.nodes.node import AbstractNode
 
-import torch
-from torch import nn
-from torch.hub import load_state_dict_from_url
-import argparse
-import os
-import time
-from loguru import logger
-
 from yolox.data.data_augment import ValTransform
-from yolox.data.datasets import COCO_CLASSES
-from yolox.exp import get_exp, Exp
-from yolox.utils import fuse_model, get_model_info, postprocess, vis
+from yolox.exp import get_exp
+from yolox.utils import postprocess
 
 
 class Node(AbstractNode):
