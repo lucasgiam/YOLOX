@@ -61,7 +61,7 @@ pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.py
 
 * Create your own ```exp``` file in the "./exps/custom/<datset_name>" folder and configure training parameters in the ```exp``` file.
 
-* For example, for the ```spe_ppe_1``` dataset and model, the ```exp``` file will be "./exps/custom/<datset_name>/<dataset_name>.py".
+* For example, for the ```spe_ppe_1``` dataset and model, the ```exp``` file will be "./exps/custom/sp_ppe_1/sp_ppe_1.py".
 
 * Run the following command to initiate model training.
 
@@ -69,7 +69,7 @@ pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.py
 python tools/train.py -f <path_to_exp_file> -d <num_gpus> -b <batch_size> --fp16 -o -c <path_to_pretrained_weights>
 ```
 
-For example:
+* For example:
 
 ```
 python tools/train.py -f .\exps\custom\sp_ppe_1\sp_ppe_1.py -d 2 -b 16 --fp16 -o -c .\weights\yolox_m.pth
