@@ -13,14 +13,17 @@ from yolox.data import get_yolox_datadir
 from yolox.exp import Exp as MyExp
 
 
-# User configs
+# System/model configs
 custom_data_folder_name = ""
 num_classes = 8
 data_num_workers = 64
 seed = 1993
+depth = 0.67    # yolo-s = 0,33, yolo-m = 0.67
+width = 0.75    # yolo-s = 0.50, yolo-m = 0.75
+warmup_epochs = 1
 
 
-# Transform configs
+# Data augmentation configs
 mosaic_prob = 1.0
 mixup_prob = 1.0
 hsv_prob = 1.0
@@ -53,11 +56,9 @@ class Exp(MyExp):
         super(Exp, self).__init__()
         self.num_classes = num_classes
         print("num_classes", self.num_classes)
-
-        self.depth = 0.33
-        self.width = 0.50
-        self.warmup_epochs = 1
-
+        self.depth = depth
+        self.width = width
+        self.warmup_epochs = warmup_epochs
         # ---------- transform config ------------ #
         self.mosaic_prob = mosaic_prob
         self.mixup_prob = mixup_prob
