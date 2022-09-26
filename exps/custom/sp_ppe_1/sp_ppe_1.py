@@ -39,7 +39,7 @@ enable_mixup = True
 
 # Training configs
 input_size = (640, 640)   # (height, width)
-max_epoch = 5
+max_epoch = 40
 test_size = (640, 640)    # (height, width)
 # log period in iter, for example, if set to 1, user could see log every iteration.
 print_interval = 1

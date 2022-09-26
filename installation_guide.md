@@ -54,14 +54,14 @@ pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.py
 * See example below for ```sp_ppe_1``` dataset:
 
 VOC_CLASSES = (
-    "no ppe",
-    "all ppe",
+    "no_ppe",
+    "all_ppe",
     "helmet",
     "mask",
     "vest",
-    "mask + vest",
-    "helmet + mask",
-    "helmet + vest",
+    "mask-vest",
+    "helmet-mask",
+    "helmet-vest",
 )
 
 
