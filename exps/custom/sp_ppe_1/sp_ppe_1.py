@@ -9,17 +9,17 @@ import os
 import torch
 import torch.distributed as dist
 
-from yolox.data import get_yolox_datadir
 from yolox.exp import Exp as MyExp
 
 
 # System/model configs
+datadir = "./datasets/sp_ppe_1/"
 custom_data_folder_name = ""
 num_classes = 8
-data_num_workers = 64
+data_num_workers = 32
 seed = 1993
-depth = 0.67    # yolo-s = 0,33, yolo-m = 0.67
-width = 0.75    # yolo-s = 0.50, yolo-m = 0.75
+depth = 0.67    # yolo-s = 0,33, yolo-m = 0.67, yolo-l = 1.00
+width = 0.75    # yolo-s = 0.50, yolo-m = 0.75, yolo-l = 1.00
 warmup_epochs = 1
 
 
@@ -39,7 +39,7 @@ enable_mixup = True
 
 # Training configs
 input_size = (640, 640)   # (height, width)
-max_epoch = 30
+max_epoch = 5
 test_size = (640, 640)    # (height, width)
 # log period in iter, for example, if set to 1, user could see log every iteration.
 print_interval = 1
@@ -104,16 +104,8 @@ class Exp(MyExp):
         with wait_for_the_master(local_rank):
 
             dataset = VOCDetection(
-                root=os.path.join(
-                    get_yolox_datadir(),
-                    "VOCdevkit",
-                ),
-                image_sets=[
-                    (
-                        "2012",
-                        "train",
-                    )
-                ],
+                root=os.path.join(datadir, "VOCdevkit"),
+                image_sets=[("2012", "train",)],
                 img_size=self.input_size,
                 preproc=TrainTransform(
                     max_labels=50,
@@ -179,7 +171,7 @@ class Exp(MyExp):
         from yolox.data import VOCDetection, ValTransform
 
         valdataset = VOCDetection(
-            root=os.path.join(get_yolox_datadir(), "VOCdevkit"),
+            root=os.path.join(datadir, "VOCdevkit"),
             image_sets=[("2012", "val")],  # image_sets=[("2012", "train")],
             img_size=self.test_size,
             preproc=ValTransform(legacy=legacy),

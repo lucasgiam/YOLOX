@@ -1,0 +1,47 @@
+input: ["img"]
+output: ["bboxes", "bbox_labels", "bbox_scores"]
+
+exp_path: "./exps/custom/sp_ppe_1/sp_ppe_1.py"
+ckpt_file: "./YOLOX_outputs/sp_ppe_1/best_ckpt.pth"
+
+voc_classes: {
+    0: "no ppe",
+    1: "all ppe",   # this class is linked to draw.bbox and draw,score custom nodes
+    2: "helmet",
+    3: "mask",
+    4: "vest",
+    5: "mask + vest",
+    6: "helmet + mask",
+    7: "helmet + vest",
+}
+
+device: "gpu"
+fp16: false
+confthre: 0.2
+nmsthre: 0.5
+
+
+
+
+
+
+
+# weights_parent_dir: ./weights
+
+# num_classes: 8
+# model_size:
+#   {
+#     yolox-tiny: { depth: 0.33, width: 0.375 },
+#     yolox-s: { depth: 0.33, width: 0.5 },
+#     yolox-m: { depth: 0.67, width: 0.75 },
+#     yolox-l: { depth: 1.0, width: 1.0 },
+#   }
+# model_format: pytorch
+# model_type: yolox-s
+# input_size: 416
+# detect: [0]
+# iou_threshold: 0.45
+# score_threshold: 0.25
+# agnostic_nms: true
+# half: false
+# fuse: false

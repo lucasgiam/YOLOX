@@ -1,0 +1,13 @@
+nodes:
+- input.visual:
+    source: 1
+- custom_nodes.model.ppe_detection
+- custom_nodes.draw.bbox
+- custom_nodes.draw.score
+- output.screen
+# - output.csv_writer:
+#     stats_to_track: ["filename", "bboxes", "bbox_labels"]
+#     file_path: ./YOLOX_outputs/pkd/all_annotations.csv
+#     logging_interval: 0
+# - output.media_writer:
+#     output_dir: ./YOLOX_outputs/pkd
