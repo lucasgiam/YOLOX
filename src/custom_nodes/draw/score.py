@@ -6,8 +6,6 @@ from typing import Any, Dict, List, Tuple
 import cv2
 from peekingduck.pipeline.nodes.node import AbstractNode
 
-YELLOW = (0, 255, 255)        # in BGR format, per opencv's convention
-
 
 def map_bbox_to_image_coords(
     bbox: List[float], image_size: Tuple[int, int]
@@ -87,14 +85,14 @@ class Node(AbstractNode):
             x1, y1, x2, y2 = map_bbox_to_image_coords(bbox, img_size)
             score = scores[i]
             score_str = f"{score:0.2f}"
-            color_score_status = color_score_status[i]
+            color_status = color_score_status[i]
             cv2.putText(
                 img=img,
                 text=score_str,
                 org=(x1, y2),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1.0,
-                color=color_score_status,
+                color=color_status,
                 thickness=3,
             )
 
