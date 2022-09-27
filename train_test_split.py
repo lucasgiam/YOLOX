@@ -4,9 +4,9 @@ import numpy as np
 
 
 # User configs
-root_path = "./datasets/sp_ppe_1/VOCdevkit/VOC2012"
+root_path = "./datasets/sp_ppe_2/VOCdevkit/VOC2012"
 seed = 1993
-train_percent = 0.7
+train_percent = 0.8
 val_percent = 0.2
 
 
@@ -65,18 +65,6 @@ for i in indices:
     else:
         ftest.write(name)
 
-# for i in indices:
-#     name = total_xml[i][:-4] + "\n"
-#     if i in trainval:
-#         ftrainval.write(name)
-#         if i in train:
-#             ftrain.write(name)
-#         else:
-#             fval.write(name)
-#     else:
-#         ftest.write(name)
-
-# ftrainval.close()
 ftrain.close()
 fval.close()
 ftest.close()

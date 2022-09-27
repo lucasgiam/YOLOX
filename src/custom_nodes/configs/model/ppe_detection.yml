@@ -19,29 +19,3 @@ device: "gpu"
 fp16: false
 confthre: 0.2
 nmsthre: 0.5
-
-
-
-
-
-
-
-# weights_parent_dir: ./weights
-
-# num_classes: 8
-# model_size:
-#   {
-#     yolox-tiny: { depth: 0.33, width: 0.375 },
-#     yolox-s: { depth: 0.33, width: 0.5 },
-#     yolox-m: { depth: 0.67, width: 0.75 },
-#     yolox-l: { depth: 1.0, width: 1.0 },
-#   }
-# model_format: pytorch
-# model_type: yolox-s
-# input_size: 416
-# detect: [0]
-# iou_threshold: 0.45
-# score_threshold: 0.25
-# agnostic_nms: true
-# half: false
-# fuse: false

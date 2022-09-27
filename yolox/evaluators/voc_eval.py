@@ -13,6 +13,7 @@ import numpy as np
 
 def parse_rec(filename):
     """Parse a PASCAL VOC xml file"""
+    print(filename)
     tree = ET.parse(filename)
     objects = []
     for obj in tree.findall("object"):
@@ -89,6 +90,7 @@ def voc_eval(
         # load annots
         recs = {}
         for i, imagename in enumerate(imagenames):
+            print(annopath.format(imagename))
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
                 print(f"Reading annotation for {i + 1}/{len(imagenames)}")

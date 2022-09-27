@@ -13,13 +13,13 @@ from yolox.exp import Exp as MyExp
 
 
 # System/model configs
-datadir = "./datasets/sp_ppe_1/"
+datadir = "./datasets/sp_ppe_2/"
 custom_data_folder_name = ""
-num_classes = 8
-data_num_workers = 2
+num_classes = 3
+data_num_workers = 0
 seed = 1993
-depth = 0.67    # yolo-s = 0,33, yolo-m = 0.67, yolo-l = 1.00
-width = 0.75    # yolo-s = 0.50, yolo-m = 0.75, yolo-l = 1.00
+depth = 0.33    # yolo-s = 0.33, yolo-m = 0.67, yolo-l = 1.00
+width = 0.50    # yolo-s = 0.50, yolo-m = 0.75, yolo-l = 1.00
 warmup_epochs = 1
 
 
@@ -39,7 +39,7 @@ enable_mixup = True
 
 # Training configs
 input_size = (640, 640)   # (height, width)
-max_epoch = 50
+max_epoch = 10
 test_size = (640, 640)    # (height, width)
 # log period in iter, for example, if set to 1, user could see log every iteration.
 print_interval = 1
@@ -102,9 +102,8 @@ class Exp(MyExp):
         local_rank = get_local_rank()
 
         with wait_for_the_master(local_rank):
-
             dataset = VOCDetection(
-                root=os.path.join(datadir, "VOCdevkit"),
+                data_dir=os.path.join(datadir, "VOCdevkit"),
                 image_sets=[("2012", "train",)],
                 img_size=self.input_size,
                 preproc=TrainTransform(
@@ -113,7 +112,7 @@ class Exp(MyExp):
                     hsv_prob=self.hsv_prob,
                 ),
                 cache=cache_img,
-                custom_data_folder_name=custom_data_folder_name,
+                # custom_data_folder_name=custom_data_folder_name,
             )
 
         dataset = MosaicDetection(
@@ -171,11 +170,11 @@ class Exp(MyExp):
         from yolox.data import VOCDetection, ValTransform
 
         valdataset = VOCDetection(
-            root=os.path.join(datadir, "VOCdevkit"),
+            data_dir=os.path.join(datadir, "VOCdevkit"),
             image_sets=[("2012", "val")],  # image_sets=[("2012", "train")],
             img_size=self.test_size,
             preproc=ValTransform(legacy=legacy),
-            custom_data_folder_name=custom_data_folder_name,
+            # custom_data_folder_name=custom_data_folder_name,
         )
 
         if is_distributed:
