@@ -17,5 +17,5 @@ voc_classes: {
 
 device: "gpu"
 fp16: false
-confthre: 0.2
+confthre: 0.7
 nmsthre: 0.5
