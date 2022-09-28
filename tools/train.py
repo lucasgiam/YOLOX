@@ -2,9 +2,9 @@
 # -*- coding:utf-8 -*-
 # Copyright (c) Megvii, Inc. and its affiliates.
 
-from pathlib import Path
-import sys
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+# from pathlib import Path
+# import sys
+# sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import torch.backends.cudnn as cudnn
 import torch
