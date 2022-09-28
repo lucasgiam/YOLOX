@@ -21,30 +21,35 @@ class Exp(MyExp):
     def __init__(self):
         super(Exp, self).__init__()
         # ---------- model config ------------ #
-        self.num_classes = 3
-        self.seed = 1993
-        self.depth = 0.33           # yolo-s = 0.33, yolo-m = 0.67, yolo-l = 1.00
-        self.width = 0.50           # yolo-s = 0.50, yolo-m = 0.75, yolo-l = 1.00
-        self.warmup_epochs = 1
-        self.max_epoch = 50
-        self.data_num_workers = 2
-        self.input_size = (640, 640)
-        self.test_size = (640, 640)
-        self.print_interval = 1     # log period in iter, for example, if set to 1, user could see log every iteration
-        self.eval_interval = 1      # eval period in epoch, for example, if set to 1, model will be evaluate after every epoch
+        self.num_classes = 4                    # num of classes
+        self.seed = 1993                        # set seed for training
+        self.depth = 0.33                       # yolo-s = 0.33, yolo-m = 0.67, yolo-l = 1.00
+        self.width = 0.50                       # yolo-s = 0.50, yolo-m = 0.75, yolo-l = 1.00
+        self.warmup_epochs = 1                  # num of epochs used for warmup
+        self.max_epoch = 20                     # max num of epochs used for training
+        self.warmup_lr = 0                      # minimum learning rate during warmup       
+        self.basic_lr_per_img = 0.01 / 64.0     # learning rate for one image. During training, lr will multiply batchsize.
+        self.scheduler = "yoloxwarmcos"         # name of LRScheduler
+        self.weight_decay = 5e-4                # weight decay of optimizer
+        self.momentum = 0.9                     # momentum of optimizer
+        self.data_num_workers = 2               # num of workers
+        self.input_size = (640, 640)            # input image size (height, width)
+        self.test_size = (640, 640)             # output image size during evaluation/testing
+        self.print_interval = 1                 # log period in iter, for example, if set to 1, user could see log every iteration
+        self.eval_interval = 1                  # eval period in epoch, for example, if set to 1, model will be evaluate after every epoch
         # ---------- transform config ------------ #
-        self.mosaic_prob = 1.0
-        self.mixup_prob = 1.0
-        self.hsv_prob = 1.0
-        self.flip_prob = 0.5
-        self.degrees = 10.0
-        self.translate = 0.1
-        self.scale = (0.1, 2.0)
-        self.mosaic_scale = (0.8, 1.6)
-        self.shear = 2.0
-        self.perspective = 0.0
-        self.enable_mixup = True
+        self.mosaic_prob = 1.0                  # prob of applying mosaic aug
+        self.mixup_prob = 1.0                   # prob of applying mixup aug
+        self.hsv_prob = 1.0                     # prob of applying hsv aug
+        self.flip_prob = 0.5                    # prob of applying flip aug
+        self.degrees = 10.0                     # rotation angle range, for example, if set to 2.0, the true range is (-2.0, 2.0)
+        self.translate = 0.1                    # translatation range, for example, if set to 0.1, the true range is (-0.1, 0.1)
+        self.scale = (0.1, 2.0)                 # scaling range
+        self.mosaic_scale = (0.8, 1.6)          # mosaic scaling range
+        self.shear = 2.0                        # shear angle range, for example, if set to 2.0, the true range is (-2.0, 2.0)
+        self.enable_mixup = True                # to apply mixup aug or not
         # ---------------------------------------- #
+        self.perspective = 0.0
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
         print("num_classes: ", self.num_classes)
 

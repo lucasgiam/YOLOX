@@ -2,7 +2,6 @@
 
 You should have the following installed on your workstation:
 * Anaconda
-* Git
 * NVIDIA CUDA toolkit and cuDNN driver
 
 
@@ -15,10 +14,11 @@ conda create -n YOLOX
 conda activate YOLOX
 ```
 
-* Install all the required packages.
+* Install all the required packages below:
 
 ```
 pip install -r requirements.txt
+pip install -v -e .
 pip install git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
 pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 ```
@@ -85,7 +85,7 @@ python tools/train.py -expn <exp_name> -f <path_to_exp_file> -d <num_gpus> -b <b
 * For example:
 
 ```
-python tools/train.py -expn sp_ppe_1 -f .\exps\custom\sp_ppe_1\sp_ppe_1.py -d 1 -b 28 --fp16 -o -c .\weights\yolox_m.pth
+python tools/train.py -expn sp_ppe_1 -f .\exps\custom\sp_ppe_1\sp_ppe_1.py -d 1 -b 16 --fp16 -o -c .\weights\yolox_m.pth
 ```
 
 * Once training is completed, you will see the model evaluation results such as the losses, IoU, mAP, etc., as well as the output directory where the weights are saved to.

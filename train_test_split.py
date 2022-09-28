@@ -1,12 +1,13 @@
 import os
 import random
 import numpy as np
+import math
 
 
 # User configs
 root_path = "./datasets/sp_ppe_2/VOCdevkit/VOC2012"
 seed = 1993
-train_percent = 0.8
+train_percent = 0.7
 val_percent = 0.2
 
 
@@ -39,9 +40,9 @@ total_xml = os.listdir(xmlfilepath)
 num = len(total_xml)
 indices = list(range(num))
 np.random.shuffle(indices)
-train_num = int(num * train_percent)
-val_num = int(num * val_percent)
-test_num = int(num * test_percent)
+train_num = round(num * train_percent)
+val_num = round(num * val_percent)
+test_num = round(num * test_percent)
 train = indices[:train_num]
 val = indices[train_num:train_num+val_num]
 test = indices[train_num+val_num:]
@@ -51,7 +52,6 @@ print("test size: ", len(test))
 
 
 # Write image names to train, val and test scripts
-# ftrainval = open(txtsavepath + "/trainval.txt", "w")
 ftest = open(txtsavepath + "/test.txt", "w")
 ftrain = open(txtsavepath + "/train.txt", "w")
 fval = open(txtsavepath + "/val.txt", "w")

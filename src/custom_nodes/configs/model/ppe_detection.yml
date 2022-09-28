@@ -6,7 +6,7 @@ ckpt_file: "./YOLOX_outputs/sp_ppe_1/best_ckpt.pth"
 
 voc_classes: {
     0: "no ppe",
-    1: "all ppe",   # this class is linked to draw.bbox and draw,score custom nodes
+    1: "all ppe",   # this class is linked to draw.bbox and draw.score custom nodes
     2: "helmet",
     3: "mask",
     4: "vest",
