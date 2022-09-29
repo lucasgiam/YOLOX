@@ -1,0 +1,5 @@
+input: ["all"]
+output: ["none"]
+
+output_dir: "./pkd_outputs"
+stats_to_track: ["filename", "bboxes", "bbox_labels"]

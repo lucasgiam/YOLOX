@@ -20,6 +20,7 @@ conda activate YOLOX
 pip install -r requirements.txt
 pip install -v -e .
 pip install git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
+pip install pycocotools==2.0.2
 pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
 pip install -U peekingduck
 ```
@@ -71,6 +72,8 @@ VOC_CLASSES = (
 * In the root directory, enter the following command to download pre-trained weights into the ```weights``` folder. Note that you can change ```yolo_m``` to ```yolo_s``` or ```yolo_l```, depending on the size of the model that you want.
 
 ``` wget.exe -P weights https://github.com/Megvii-BaseDetection/storage/releases/download/0.0.1/yolox_m.pth ```
+
+(Note: If you do not already have ```wget.exe``` installed on your computer, you can refer to this video on how to do so: https://youtu.be/CkpTEJH6xkg)
 
 
 ## 4. Train the model

@@ -1,13 +1,49 @@
-nodes:
-- input.visual:
-    source: 1
-- custom_nodes.model.ppe_detection
-- custom_nodes.draw.bbox
-- custom_nodes.draw.score
-- output.screen
+# nodes:
+# - input.visual:
+#     source: 1
+# - custom_nodes.model.model_sp_ppe_1
+#     exp_path: "./exps/custom/sp_ppe_1/sp_ppe_1.py"
+#     ckpt_file: "./YOLOX_outputs/sp_ppe_1/best_ckpt.pth"
+#     voc_classes: {
+#         0: "no ppe",
+#         1: "all ppe",   # this class is linked to draw.bbox and draw.score custom nodes
+#         2: "helmet",
+#         3: "mask",
+#         4: "vest",
+#         5: "mask + vest",
+#         6: "helmet + mask",
+#         7: "helmet + vest",
+#     }
+#     confthre: 0.7
+#     nmsthre: 0.5
+# - custom_nodes.draw.bbox_sp_ppe_1
+#     show_labels: True
+# - custom_nodes.draw.score_sp_ppe_1
+# - output.screen
 # - output.csv_writer:
 #     stats_to_track: ["filename", "bboxes", "bbox_labels"]
 #     file_path: ./YOLOX_outputs/pkd/all_annotations.csv
 #     logging_interval: 0
 # - output.media_writer:
-#     output_dir: ./YOLOX_outputs/pkd
+    output_dir: ./YOLOX_outputs/pkd
+
+
+nodes:
+- input.visual:
+    source: 0
+- model.yolox:
+    model_type: yolox-s
+    detect: ["*"]
+- draw.bbox:
+    show_labels: True
+- dabble.tracking
+- custom_nodes.output.vid2img_writer_sp_ppe_1
+- custom_nodes.output.test:
+    stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
+    file_path: ./pkd_outputs/test.csv
+    logging_interval: 0
+- output.screen
+# - output.csv_writer:
+#     stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
+#     file_path: ./pkd_outputs/test.csv
+#     logging_interval: 0
