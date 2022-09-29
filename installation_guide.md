@@ -21,6 +21,7 @@ pip install -r requirements.txt
 pip install -v -e .
 pip install git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
 pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+pip install -U peekingduck
 ```
 
 
@@ -49,7 +50,7 @@ pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.py
 
 ```python train_test_split.py```
 
-* Next, go to ```./yolox/data/datasets```, open the two files ```coco_classes.py``` and ```voc_classes.py``', and set the class labels accordingly.
+* Next, go to ```./yolox/data/datasets```, open the two files ```coco_classes.py``` and ```voc_classes.py```, and set the class labels accordingly.
 
 * See example below for ```sp_ppe_1``` dataset:
 
