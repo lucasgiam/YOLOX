@@ -71,7 +71,7 @@ VOC_CLASSES = (
 
 * In the root directory, enter the following command to download pre-trained weights into the ```weights``` folder. Note that you can change ```yolo_m``` to ```yolo_s``` or ```yolo_l```, depending on the size of the model that you want.
 
-``` wget.exe -P weights https://github.com/Megvii-BaseDetection/storage/releases/download/0.0.1/yolox_m.pth ```
+``` wget.exe -P weights/pretrained https://github.com/Megvii-BaseDetection/storage/releases/download/0.0.1/yolox_m.pth ```
 
 (Note: If you do not already have ```wget.exe``` installed on your computer, you can refer to this video on how to do so: https://youtu.be/CkpTEJH6xkg)
 
@@ -89,17 +89,17 @@ python tools/train.py -expn <exp_name> -f <path_to_exp_file> -d <num_gpus> -b <b
 * For example:
 
 ```
-python tools/train.py -expn sp_ppe_1 -f .\exps\custom\sp_ppe_1\sp_ppe_1.py -d 1 -b 16 --fp16 -o -c .\weights\yolox_m.pth
+python tools/train.py -expn sp_ppe_1 -f .\exps\custom\sp_ppe_1\sp_ppe_1.py -d 1 -b 16 --fp16 -o -c .\weights\pretrained\yolox_m.pth
 ```
 
-* Once training is completed, you will see the model evaluation results such as the losses, IoU, mAP, etc., as well as the output directory where the weights are saved to.
+* Once training is completed, go to the output directory where the weights are saved to and copy the ```best_ckpt.pth``` file to the ```weights``` folder, under a <exp_name> subfolder.
 
 
 ## 5. Package the model into PeekingDuck custom node
 
 * Refer to https://peekingduck.readthedocs.io/en/latest/tutorials/03_custom_nodes.html on how to create PeekingDuck custom nodes (if you are not already familiar with it).
 
-* To package the model into PeekingDuck custom node, we will need to create and configure two files, ```<exp_name>.py``` (source code) and ```<exp_name>.yaml``` (config file), in the standard directory format as mentioned in the PeekingDuck custom node tutorial. You can reference the code of these two files from ```./src/custom_nodes/model/ppe_detection.py``` (source code) and ```./src/custom_nodes/configs/model/ppe_detection.yml``` (config file).
+* To package the model into PeekingDuck custom node, we will need to create and configure two files, ```<exp_name>.py``` (source code) and ```<exp_name>.yaml``` (config file), in the standard directory format as mentioned in the PeekingDuck custom node tutorial. You can reference the code of these two files from ```./src/custom_nodes/model/sp_ppe_1_yolo_m.py``` (source code) and ```./src/custom_nodes/configs/model/sp_ppe_1_yolo_m.yml``` (config file).
 
 
 ## 6. Run the model
