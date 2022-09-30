@@ -1,0 +1,19 @@
+input: ["img"]
+output: ["bboxes", "bbox_labels", "bbox_scores"]
+
+exp_path: ""
+ckpt_file: ""
+voc_classes: {
+        0: "no ppe",
+        1: "all ppe",   # this class is linked to draw.bbox and draw.score custom nodes
+        2: "helmet",
+        3: "mask",
+        4: "vest",
+        5: "mask + vest",
+        6: "helmet + mask",
+        7: "helmet + vest",
+}
+device: "gpu"
+fp16: false
+confthre: ""
+nmsthre: ""
