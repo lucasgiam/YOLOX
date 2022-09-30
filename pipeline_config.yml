@@ -1,40 +1,41 @@
-nodes:
-- input.visual:
-    source: 1
-- custom_nodes.model.sp_ppe_1_yolox:
-    exp_path: "./exps/custom/sp_ppe_1/sp_ppe_1.py"
-    ckpt_file: "./weights/sp_ppe_1/best_ckpt_s_dev.pth"
-    confthre: 0.7
-    nmsthre: 0.5
-- custom_nodes.draw.sp_ppe_1_bbox_cond_color:
-    show_labels: True
-- custom_nodes.draw.sp_ppe_1_score_cond_color:
-- output.screen
-# - output.csv_writer:
-#     stats_to_track: ["filename", "bboxes", "bbox_labels"]
-#     file_path: ./YOLOX_outputs/pkd_outputs/all_annotations.csv
-#     logging_interval: 0
-# - output.media_writer:
-# #     output_dir: ./YOLOX_outputs/pkd_outputs
-
-
 # nodes:
 # - input.visual:
 #     source: 1
-# - model.yolox:
-#     model_type: yolox-m
-#     detect: ["*"]
-# - draw.bbox:
+# - custom_nodes.model.sp_ppe_1_yolox:
+#     exp_path: "./exps/custom/sp_ppe_1/sp_ppe_1.py"
+#     ckpt_file: "./weights/sp_ppe_1/best_ckpt_s_dev.pth"
+#     confthre: 0.7
+#     nmsthre: 0.5
+# - custom_nodes.draw.sp_ppe_1_bbox_cond_color:
 #     show_labels: True
-# - dabble.tracking
-# - custom_nodes.output.vid2img_writer_sp_ppe_1:
+# - custom_nodes.draw.sp_ppe_1_score_cond_color
+# - output.screen
+# # - output.csv_writer:
+# #     stats_to_track: ["filename", "bboxes", "bbox_labels"]
+# #     file_path: ./YOLOX_outputs/pkd_outputs/all_annotations.csv
+# #     logging_interval: 0
+# # - output.media_writer:
+# #     output_dir: ./YOLOX_outputs/pkd_outputs
+
+
+nodes:
+- input.visual:
+    source: 1
+- model.yolox:
+    model_type: yolox-m
+    detect: ["*"]
+- draw.bbox:
+    show_labels: True
+- dabble.tracking
+# - custom_nodes.output.sp_ppe_1_vid2img_writer:
 #     output_dir: ./YOLOX_outputs/pkd_outputs
-# - custom_nodes.output.test:
+- custom_nodes.output.test:
+    output_dir: ./YOLOX_outputs/pkd_outputs
+    stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
+    file_path: ./YOLOX_outputs/pkd_outputs/test.csv
+    logging_interval: 0
+# - output.screen
+# - output.csv_writer:
 #     stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
 #     file_path: ./YOLOX_outputs/pkd_outputs/test.csv
 #     logging_interval: 0
-# - output.screen
-# # - output.csv_writer:
-# #     stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
-# #     file_path: ./YOLOX_outputs/pkd_outputs/test.csv
-# #     logging_interval: 0
