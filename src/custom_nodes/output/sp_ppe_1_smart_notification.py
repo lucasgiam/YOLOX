@@ -1,5 +1,3 @@
-"""Records the nodes' outputs to a CSV file."""
-
 from typing import Any, Dict
 from collections import deque
 import requests
@@ -20,7 +18,7 @@ class Node(AbstractNode):
         # User configs:
         self.frames_threshold = 200         # min number of frames of consecutive PPE non-compliance to trigger a violation alert
         self.time_betw_trigs = 30           # time (in seconds) between two instances of same PPE non-compliance to trigger a violation alert
-        self.violation_classes = {"no ppe": 0, "helmet": 2, "mask": 3, "vest": 4, "mask + vest": 5, "helmet + mask": 6, "helmet + vest": 7}
+        self.violation_classes = {"no ppe": 0, "helmet": 2, "mask": 3, "vest": 4, "mask + vest": 5, "helmet + mask": 6, "helmet + vest": 7}   # dict mapping class_label to violation_id
 
         # Do not config:
         self.frame_counter = 0
