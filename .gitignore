@@ -220,3 +220,4 @@ events.out.tfevents*
 # vim
 .vim
 client_secrets.json 
+mycreds.txt

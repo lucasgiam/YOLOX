@@ -2,7 +2,14 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()   # client_secrets.json need to be in the same directory as the script
+gauth.LoadCredentialsFile("mycreds.txt")   # try to load saved client credentials
+if gauth.credentials is None:
+    gauth.LocalWebserverAuth()             # need to authenticate if mycreds.txt is not there, also ensure that client_secrets.json is in the same directory as this script
+elif gauth.access_token_expired:
+    gauth.Refresh()                        # refresh credentials if expired
+else:
+    gauth.Authorize()                      # initialize the saved credentials
+gauth.SaveCredentialsFile("mycreds.txt")   # save the current credentials to a file
 drive = GoogleDrive(gauth)
 
 # View all folders and file in your Google Drive
