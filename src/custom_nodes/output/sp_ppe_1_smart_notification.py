@@ -1,5 +1,7 @@
 from typing import Any, Dict
 from collections import deque
+import cv2
+import os
 import requests
 import datetime 
 import time 
@@ -16,7 +18,7 @@ class Node(AbstractNode):
         # 2. The tracking id for each unique person does not change with time
 
         # User configs:
-        self.frames_threshold = 200         # min number of frames of consecutive PPE non-compliance to trigger a violation alert
+        self.frames_threshold = 100         # min number of frames of consecutive PPE non-compliance to trigger a violation alert
         self.time_betw_trigs = 30           # time (in seconds) between two instances of same PPE non-compliance to trigger a violation alert
         self.violation_classes = {"no ppe": 0, "helmet": 2, "mask": 3, "vest": 4, "mask + vest": 5, "helmet + mask": 6, "helmet + vest": 7}   # dict mapping class_label to violation_id
 
@@ -101,28 +103,50 @@ class Node(AbstractNode):
 
     def send_to_payload(self, violation_id):
 
-        url = 'http://52.221.211.53/SendNotification'
+        # url = 'http://52.221.211.53/SendNotification'
 
-        dt = datetime.datetime.now()
-        dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
-        instance = 1
-        vidURL = 'https://drive.google.com/uc?export=download&id=1CQwjM0m3vgoelz3Xr7VwOJs0UY8cStqm'
+        # dt = datetime.datetime.now()
+        # dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
+        # instance = 1
+        # vidURL = 'https://drive.google.com/uc?export=download&id=1CQwjM0m3vgoelz3Xr7VwOJs0UY8cStqm'
 
-        payload = {
-            "alarms" : [
-                {
-                    "camId": '1',
-                    "time": dt,
-                    "startTime": dt,
-                    "endTime": dt+10,
-                    "instance": instance,
-                    "violationType": violation_id,
-                    "videoUrl": vidURL
-                }
-            ]
-        }
+        # payload = {
+        #     "alarms" : [
+        #         {
+        #             "camId": '1',
+        #             "time": dt,
+        #             "startTime": dt,
+        #             "endTime": dt+10,
+        #             "instance": instance,
+        #             "violationType": violation_id,
+        #             "videoUrl": vidURL
+        #         }
+        #     ]
+        # }
 
-        x = requests.post(url, json = payload, verify = False)
+        # x = requests.post(url, json = payload, verify = False)
 
         print("triggered send_to_payload:", "violation_id =", violation_id)
         # print("self.global_violation_ids: ", self.global_violation_ids)
+
+        self.img_to_vid()
+
+
+    def img_to_vid(self):
+        img_dir = './YOLOX_outputs/pkd_outputs'
+        img_files = [os.path.splitext(filename)[0] for filename in os.listdir(img_dir)]
+        vid_path = './YOLOX_outputs/pkd_outputs/compiled_videos'
+        vid_name = img_files[0] + '.mp4'
+
+        images = [img for img in os.listdir(img_dir) if img.endswith(".jpg")]
+        frame = cv2.imread(os.path.join(img_dir, images[0]))
+        height, width, layers = frame.shape
+
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        video = cv2.VideoWriter(os.path.join(vid_path, vid_name), fourcc, 20, (width, height))
+
+        for img in images:
+            video.write(cv2.imread(os.path.join(img_dir, img)))
+
+        cv2.destroyAllWindows()
+        video.release()

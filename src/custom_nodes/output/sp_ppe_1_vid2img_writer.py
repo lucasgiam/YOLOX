@@ -6,8 +6,9 @@ Writes the output image(s) to image(s).
 import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
-
+from collections import deque
 import cv2
+import os
 import numpy as np
 
 from peekingduck.pipeline.nodes.abstract_node import AbstractNode
@@ -30,7 +31,7 @@ class Node(AbstractNode):
 
     def __init__(self, config: Dict[str, Any] = None, **kwargs: Any) -> None:
         super().__init__(config, node_path=__name__, **kwargs)
-
+        self.num_img_to_store: int
         self.output_dir = Path(self.output_dir)  # type: ignore
         self._file_name: Optional[str] = None
         self._file_path_with_timestamp: Optional[str] = None
@@ -39,6 +40,7 @@ class Node(AbstractNode):
         self._prepare_directory(self.output_dir)
         self._fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         self.logger.info(f"Output directory used is: {self.output_dir}")
+        self.img_filepaths = deque([])
 
     def run(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """Writes media information to filepath."""
@@ -53,6 +55,7 @@ class Node(AbstractNode):
         self._write(inputs["img"])
         filename = str(Path(self._file_path_with_timestamp).stem + ".jpg")
         output = {"filename": filename}
+        self._delete()
         return output
 
     def _get_config_types(self) -> Dict[str, Any]:
@@ -65,6 +68,12 @@ class Node(AbstractNode):
         else:
             self._file_path_with_timestamp = Path(self._file_path_with_timestamp).with_suffix(".jpg")
             cv2.imwrite(str(self._file_path_with_timestamp), img)
+
+    def _delete(self):
+        self.img_filepaths.append(self._file_path_with_timestamp)
+        if len(self.img_filepaths) >= self.num_img_to_store:
+            img_to_delete = self.img_filepaths.popleft()
+            os.remove(str(img_to_delete))
 
     def _prepare_writer(
         self, filename: str, img: np.ndarray, saved_video_fps: int

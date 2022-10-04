@@ -1,7 +1,4 @@
 input: ["all"]
 output: ["none"]
 
-output_dir: ""
-stats_to_track: ""
-file_path: ""
-logging_interval: ""
+# No optional configs
