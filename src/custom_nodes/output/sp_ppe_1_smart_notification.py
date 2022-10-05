@@ -4,7 +4,9 @@ import cv2
 import os
 import requests
 import datetime 
-import time 
+import time
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 from peekingduck.pipeline.nodes.abstract_node import AbstractNode
 
 
@@ -20,6 +22,7 @@ class Node(AbstractNode):
         # User configs:
         self.frames_threshold = 100         # min number of frames of consecutive PPE non-compliance to trigger a violation alert
         self.time_betw_trigs = 30           # time (in seconds) between two instances of same PPE non-compliance to trigger a violation alert
+        self.frames_percent_trig = 0.95     # percentage of self.frames_threshold to trigger a violation alert, e.g. if self.frames_threshold = 100, then as long as any 90 frames are PPE non-compliance, it will trigger a violation alert 
         self.violation_classes = {"no ppe": 0, "helmet": 2, "mask": 3, "vest": 4, "mask + vest": 5, "helmet + mask": 6, "helmet + vest": 7}   # dict mapping class_label to violation_id
 
         # Do not config:
@@ -65,13 +68,13 @@ class Node(AbstractNode):
                             violation_ids[track_id][class_label] = 1    # set counter = 1
                         else:
                             violation_ids[track_id][class_label] += 1   # add 1 to the counter if class_label is already present in violation_ids
-            # print(violation_ids)
+            # print('violation_ids:', violation_ids)
 
             for track_id, inner_dict in violation_ids.items():
                 for class_label, counter in inner_dict.items():
-                    if counter == self.frames_threshold:
+                    if counter >= int(self.frames_percent_trig * self.frames_threshold):
                         start_time = time.time()
-                        # print("self.global_violation_ids: ", self.global_violation_ids)
+                        # print('self.global_violation_ids:', self.global_violation_ids)
                         if track_id not in self.global_violation_ids:
                             self.global_violation_ids[track_id] = {}   # inner dict within self.global_violation_ids dict
                             self.global_violation_ids[track_id][class_label] = []
@@ -130,23 +133,58 @@ class Node(AbstractNode):
         # print("self.global_violation_ids: ", self.global_violation_ids)
 
         self.img_to_vid()
+        # self.upload_to_google_drive()
 
 
     def img_to_vid(self):
-        img_dir = './YOLOX_outputs/pkd_outputs'
+        img_dir = './pkd_outputs/output_images'
         img_files = [os.path.splitext(filename)[0] for filename in os.listdir(img_dir)]
-        vid_path = './YOLOX_outputs/pkd_outputs/compiled_videos'
+        vid_dir = './pkd_outputs/compiled_videos'
         vid_name = img_files[0] + '.mp4'
+        vid_path = os.path.join(vid_dir, vid_name)
 
         images = [img for img in os.listdir(img_dir) if img.endswith(".jpg")]
         frame = cv2.imread(os.path.join(img_dir, images[0]))
         height, width, layers = frame.shape
 
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        video = cv2.VideoWriter(os.path.join(vid_path, vid_name), fourcc, 20, (width, height))
+        video = cv2.VideoWriter(vid_path, fourcc, 19, (width, height))
 
         for img in images:
             video.write(cv2.imread(os.path.join(img_dir, img)))
 
-        cv2.destroyAllWindows()
         video.release()
+
+        return vid_name, vid_path
+
+
+    # def upload_to_google_drive(self, vid_name, vid_path):
+
+    #     # Authenticate Google Drive
+    #     gauth = GoogleAuth()
+    #     gauth.LoadCredentialsFile("mycreds.txt")   # try to load saved client credentials
+    #     if gauth.credentials is None:
+    #         gauth.LocalWebserverAuth()             # need to authenticate if mycreds.txt is not there, also ensure that client_secrets.json is in the same directory as this script
+    #     elif gauth.access_token_expired:
+    #         gauth.Refresh()                        # refresh credentials if expired
+    #     else:
+    #         gauth.Authorize()                      # initialize the saved credentials
+    #     gauth.SaveCredentialsFile("mycreds.txt")   # save the current credentials to a file
+    #     drive = GoogleDrive(gauth)
+
+    #     # Locate folder in Google Drive
+    #     fileList = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+    #     for file in fileList:
+    #         if(file['title'] == "sp_ppe_1_videos"):
+    #             fileID = file['id']
+
+    #     # Upload video to Google Drive folder
+    #     file1 = drive.CreateFile({'title': vid_name, 'parents': [{'kind': 'drive#fileLink', 'id': fileID}]})
+    #     file1.SetContentFile(vid_path)
+    #     file1.Upload()
+    #     print('Uploaded file %s with mimeType %s' % (file1['title'], file1['mimeType']))
+
+    #     # Generate URL to file
+    #     url_link = file1['alternateLink']
+        
+    #     return url_link

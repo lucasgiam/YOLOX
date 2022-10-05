@@ -21,8 +21,8 @@ for file in fileList:
         fileID = file['id']
 
 # Test uploading a video file to Google Drive folder
-file1 = drive.CreateFile({'title':'testing.mp4', 'parents': [{'kind': 'drive#fileLink', 'id': fileID}]})
-file1.SetContentFile(r'C:\Users\Admin\Pictures\Camera Roll\testing.mp4')   # enter path to actual image file here
+file1 = drive.CreateFile({'title':'test_123.mp4', 'parents': [{'kind': 'drive#fileLink', 'id': fileID}]})
+file1.SetContentFile(r'C:\Users\Lucas_Giam\Pictures\Camera Roll\WIN_20221004_16_39_49_Pro.mp4')   # enter path to actual image file here
 file1.Upload()
 print('Created file %s with mimeType %s' % (file1['title'], file1['mimeType']))
 

@@ -31,10 +31,10 @@ nodes:
 - custom_nodes.draw.sp_ppe_1_score_cond_color
 - dabble.tracking
 - custom_nodes.output.sp_ppe_1_vid2img_writer:
-    output_dir: ./YOLOX_outputs/pkd_outputs
+    output_dir: ./pkd_outputs/output_images
     num_img_to_store: 200
 - custom_nodes.output.sp_ppe_1_smart_notification
-# - output.screen
+- output.screen
 # - output.csv_writer:
 #     stats_to_track: ["filename", "bboxes", "bbox_labels", "obj_attrs"]
 #     file_path: ./YOLOX_outputs/pkd_outputs/test.csv
