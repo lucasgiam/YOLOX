@@ -22,7 +22,7 @@ class Node(AbstractNode):
         # User configs:
         self.frames_threshold = 100         # min number of frames of consecutive PPE non-compliance to trigger a violation alert
         self.time_betw_trigs = 30           # time (in seconds) between two instances of same PPE non-compliance to trigger a violation alert
-        self.frames_percent_trig = 0.95     # percentage of self.frames_threshold to trigger a violation alert, e.g. if self.frames_threshold = 100, then as long as any 90 frames are PPE non-compliance, it will trigger a violation alert 
+        self.frames_percent_trig = 0.90     # percentage of self.frames_threshold to trigger a violation alert, e.g. if self.frames_threshold = 100, then as long as any 90 frames are PPE non-compliance, it will trigger a violation alert 
         self.violation_classes = {"no ppe": 0, "helmet": 2, "mask": 3, "vest": 4, "mask + vest": 5, "helmet + mask": 6, "helmet + vest": 7}   # dict mapping class_label to violation_id
 
         # Do not config:
@@ -106,34 +106,33 @@ class Node(AbstractNode):
 
     def send_to_payload(self, violation_id):
 
-        # url = 'http://52.221.211.53/SendNotification'
+        vid_name, vid_path = self.img_to_vid()
+        vidURL = self.upload_to_google_drive(vid_name, vid_path)
 
-        # dt = datetime.datetime.now()
-        # dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
-        # instance = 1
-        # vidURL = 'https://drive.google.com/uc?export=download&id=1CQwjM0m3vgoelz3Xr7VwOJs0UY8cStqm'
+        url = 'http://52.221.211.53/SendNotification'
 
-        # payload = {
-        #     "alarms" : [
-        #         {
-        #             "camId": '1',
-        #             "time": dt,
-        #             "startTime": dt,
-        #             "endTime": dt+10,
-        #             "instance": instance,
-        #             "violationType": violation_id,
-        #             "videoUrl": vidURL
-        #         }
-        #     ]
-        # }
+        dt = datetime.datetime.now()
+        dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
+        instance = 1
 
-        # x = requests.post(url, json = payload, verify = False)
+        payload = {
+            "alarms" : [
+                {
+                    "camId": '1',
+                    "time": dt,
+                    "startTime": dt,
+                    "endTime": dt+10,
+                    "instance": instance,
+                    "violationType": violation_id,
+                    "videoUrl": vidURL
+                }
+            ]
+        }
+
+        requests.post(url, json = payload, verify = False)
 
         print("triggered send_to_payload:", "violation_id =", violation_id)
         # print("self.global_violation_ids: ", self.global_violation_ids)
-
-        self.img_to_vid()
-        # self.upload_to_google_drive()
 
 
     def img_to_vid(self):
@@ -148,7 +147,7 @@ class Node(AbstractNode):
         height, width, layers = frame.shape
 
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        video = cv2.VideoWriter(vid_path, fourcc, 19, (width, height))
+        video = cv2.VideoWriter(vid_path, fourcc, 20, (width, height))
 
         for img in images:
             video.write(cv2.imread(os.path.join(img_dir, img)))
@@ -158,33 +157,34 @@ class Node(AbstractNode):
         return vid_name, vid_path
 
 
-    # def upload_to_google_drive(self, vid_name, vid_path):
+    def upload_to_google_drive(self, vid_name, vid_path):
 
-    #     # Authenticate Google Drive
-    #     gauth = GoogleAuth()
-    #     gauth.LoadCredentialsFile("mycreds.txt")   # try to load saved client credentials
-    #     if gauth.credentials is None:
-    #         gauth.LocalWebserverAuth()             # need to authenticate if mycreds.txt is not there, also ensure that client_secrets.json is in the same directory as this script
-    #     elif gauth.access_token_expired:
-    #         gauth.Refresh()                        # refresh credentials if expired
-    #     else:
-    #         gauth.Authorize()                      # initialize the saved credentials
-    #     gauth.SaveCredentialsFile("mycreds.txt")   # save the current credentials to a file
-    #     drive = GoogleDrive(gauth)
+        # Authenticate Google Drive
+        gauth = GoogleAuth()
+        gauth.LoadCredentialsFile("mycreds.txt")   # try to load saved client credentials
+        if gauth.credentials is None:
+            gauth.LocalWebserverAuth()             # need to authenticate if mycreds.txt is not there, also ensure that client_secrets.json is in the same directory as this script
+        elif gauth.access_token_expired:
+            gauth.Refresh()                        # refresh credentials if expired
+        else:
+            gauth.Authorize()                      # initialize the saved credentials
+        gauth.SaveCredentialsFile("mycreds.txt")   # save the current credentials to a file
+        drive = GoogleDrive(gauth)
 
-    #     # Locate folder in Google Drive
-    #     fileList = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
-    #     for file in fileList:
-    #         if(file['title'] == "sp_ppe_1_videos"):
-    #             fileID = file['id']
+        # Locate folder in Google Drive
+        fileList = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+        for file in fileList:
+            if(file['title'] == "sp_ppe_1_videos"):
+                fileID = file['id']
 
-    #     # Upload video to Google Drive folder
-    #     file1 = drive.CreateFile({'title': vid_name, 'parents': [{'kind': 'drive#fileLink', 'id': fileID}]})
-    #     file1.SetContentFile(vid_path)
-    #     file1.Upload()
-    #     print('Uploaded file %s with mimeType %s' % (file1['title'], file1['mimeType']))
+        # Upload video to Google Drive folder
+        vid_upload = drive.CreateFile({'title': vid_name, 'parents': [{'kind': 'drive#fileLink', 'id': fileID}]})
+        vid_upload.SetContentFile(vid_path)
+        vid_upload.Upload()
+        print('Uploaded file %s with mimeType %s' % (vid_upload['title'], vid_upload['mimeType']))
 
-    #     # Generate URL to file
-    #     url_link = file1['alternateLink']
+        # Generate URL to file
+        # vidURL = vid_upload['alternateLink']
+        vidURL = 'https://drive.google.com/uc?export=download&id=' + str(vid_upload['id'])
         
-    #     return url_link
+        return vidURL
