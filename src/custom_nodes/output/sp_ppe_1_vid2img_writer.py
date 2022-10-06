@@ -1,6 +1,5 @@
 """
 Writes the output video to images.
-Writes the output image(s) to image(s).
 """
 
 import datetime
@@ -15,19 +14,6 @@ from peekingduck.pipeline.nodes.abstract_node import AbstractNode
 
 
 class Node(AbstractNode):
-    """Outputs the processed image or video to a file. A timestamp is appended to the
-    end of the file name.
-    Inputs:
-        |img_data|
-        |filename_data|
-        |saved_video_fps_data|
-        |pipeline_end_data|
-    Outputs:
-        |none_output_data|
-    Configs:
-        output_dir (:obj:`str`): **default = "PeekingDuck/data/output"**. |br|
-            Output directory for files to be written locally.
-    """
 
     def __init__(self, config: Dict[str, Any] = None, **kwargs: Any) -> None:
         super().__init__(config, node_path=__name__, **kwargs)
@@ -35,13 +21,13 @@ class Node(AbstractNode):
         self.output_dir = Path(self.output_dir)  # type: ignore
         self._file_name: Optional[str] = None
         self._file_path_with_timestamp: Optional[str] = None
-        self._image_type: Optional[str] = None
         self.writer = None
         self._prepare_directory(self.output_dir)
         self._fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         self.logger.info(f"Output directory used is: {self.output_dir}")
         self.img_filepaths = deque([])
         self.frame_counter = 0
+
 
     def run(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """Writes media information to filepath."""
@@ -50,13 +36,10 @@ class Node(AbstractNode):
             if self.writer:  # images automatically releases writer
                 self.writer.release()
             return {}
-        img_dir = './pkd_outputs/output_images'
-        images = os.listdir(img_dir)
+        images = os.listdir(self.output_dir)
         if self.frame_counter == 0 and len(images) != 0:
-            [os.remove(os.path.join(img_dir, image)) for image in images]
-        self._prepare_writer(
-                inputs["filename"], inputs["img"], inputs["saved_video_fps"]
-            )
+            [os.remove(os.path.join(self.output_dir, image)) for image in images]
+        self._prepare_writer(inputs["filename"])
         self._write(inputs["img"])
         filename = str(Path(self._file_path_with_timestamp).stem + ".jpg")
         output = {"filename": filename}
@@ -64,16 +47,11 @@ class Node(AbstractNode):
         self.frame_counter += 1
         return output
 
-    def _get_config_types(self) -> Dict[str, Any]:
-        """Returns dictionary mapping the node's config keys to respective types."""
-        return {"output_dir": str}
 
     def _write(self, img: np.ndarray) -> None:
-        if self._image_type == "image":
-            cv2.imwrite(self._file_path_with_timestamp, img)
-        else:
-            self._file_path_with_timestamp = Path(self._file_path_with_timestamp).with_suffix(".jpg")
-            cv2.imwrite(str(self._file_path_with_timestamp), img)
+        self._file_path_with_timestamp = Path(self._file_path_with_timestamp).with_suffix(".jpg")
+        cv2.imwrite(str(self._file_path_with_timestamp), img)
+
 
     def _delete(self):
         self.img_filepaths.append(self._file_path_with_timestamp)
@@ -81,15 +59,9 @@ class Node(AbstractNode):
             img_to_delete = self.img_filepaths.popleft()
             os.remove(str(img_to_delete))
 
-    def _prepare_writer(
-        self, filename: str, img: np.ndarray, saved_video_fps: int
-    ) -> None:
-        self._file_path_with_timestamp = self._append_datetime_filename(filename)
 
-        if filename.split(".")[-1] in ["jpg", "jpeg", "png"]:
-            self._image_type = "image"
-        else:
-            self._image_type = "video"
+    def _prepare_writer(self, filename: str) -> None:
+        self._file_path_with_timestamp = self._append_datetime_filename(filename)
 
 
     @staticmethod
