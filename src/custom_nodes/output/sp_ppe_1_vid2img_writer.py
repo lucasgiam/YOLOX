@@ -41,6 +41,7 @@ class Node(AbstractNode):
         self._fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         self.logger.info(f"Output directory used is: {self.output_dir}")
         self.img_filepaths = deque([])
+        self.frame_counter = 0
 
     def run(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """Writes media information to filepath."""
@@ -49,6 +50,10 @@ class Node(AbstractNode):
             if self.writer:  # images automatically releases writer
                 self.writer.release()
             return {}
+        img_dir = './pkd_outputs/output_images'
+        images = os.listdir(img_dir)
+        if self.frame_counter == 0 and len(images) != 0:
+            [os.remove(os.path.join(img_dir, image)) for image in images]
         self._prepare_writer(
                 inputs["filename"], inputs["img"], inputs["saved_video_fps"]
             )
@@ -56,6 +61,7 @@ class Node(AbstractNode):
         filename = str(Path(self._file_path_with_timestamp).stem + ".jpg")
         output = {"filename": filename}
         self._delete()
+        self.frame_counter += 1
         return output
 
     def _get_config_types(self) -> Dict[str, Any]:

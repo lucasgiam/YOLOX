@@ -100,36 +100,36 @@ class Node(AbstractNode):
             return {}
 
         self.frame_counter += 1
-        _ = self.smart_notif(inputs)
+        self.smart_notif(inputs)
         return {"frame_counts": self.frame_counter}
 
 
     def send_to_payload(self, violation_id):
 
-        vid_name, vid_path = self.img_to_vid()
-        vidURL = self.upload_to_google_drive(vid_name, vid_path)
+        # vid_name, vid_path = self.img_to_vid()
+        # vidURL = self.upload_to_google_drive(vid_name, vid_path)
 
-        url = 'http://52.221.211.53/SendNotification'
+        # url = 'http://52.221.211.53/SendNotification'
 
-        dt = datetime.datetime.now()
-        dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
-        instance = 1
+        # dt = datetime.datetime.now()
+        # dt = int(time.mktime(dt.timetuple())) + 8*60*60   # convert to GMT+8 hours to seconds
+        # instance = 1
 
-        payload = {
-            "alarms" : [
-                {
-                    "camId": '1',
-                    "time": dt,
-                    "startTime": dt,
-                    "endTime": dt+10,
-                    "instance": instance,
-                    "violationType": violation_id,
-                    "videoUrl": vidURL
-                }
-            ]
-        }
+        # payload = {
+        #     "alarms" : [
+        #         {
+        #             "camId": '1',
+        #             "time": dt,
+        #             "startTime": dt,
+        #             "endTime": dt+10,
+        #             "instance": instance,
+        #             "violationType": violation_id,
+        #             "videoUrl": vidURL
+        #         }
+        #     ]
+        # }
 
-        requests.post(url, json = payload, verify = False)
+        # requests.post(url, json = payload, verify = False)
 
         print("triggered send_to_payload:", "violation_id =", violation_id)
         # print("self.global_violation_ids: ", self.global_violation_ids)
